@@ -56,6 +56,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
   Set<String> topics = Set<String>();
   String _fluxReading = '';
 
+  bool toggleValue = false;
+
   @override
   void initState() {
     _connect();
@@ -142,7 +144,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
               },
               child: Center(
                 child: Text(
-                    "${animation.value.toInt()}%",
+                    "${animation.value.toInt()} L",
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -164,47 +166,47 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(bottom: 30),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(top: 250),
-                child: RaisedButton(
-                  child: Text(
-                    "ON",
-                    style: TextStyle(
-                        fontSize: 17,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 500),
+            height: 80.0,
+            width:200.0,
+            decoration: BoxDecoration(
+              borderRadius:  BorderRadius.circular(80.0),
+              color: toggleValue ? Colors.greenAccent[100] : Colors.redAccent[100].withOpacity(0.5),
+            ),
+            child: Stack(
+              children: <Widget>[
+                AnimatedPositioned(
+                  duration: Duration(milliseconds: 500),
+                  curve: Curves.easeIn,
+                  top: 3.0,
+                  left: toggleValue ? 120.0 : 0.0,
+                  right: toggleValue ? 0.0 : 120.0,
+                  child: InkWell(
+                    onTap: toggleButton,
+                    child: AnimatedSwitcher(
+                      duration: Duration(milliseconds: 500),
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        return ScaleTransition(child: child, scale: animation);
+                      },
+                      child: toggleValue ?
+                      Icon(Icons.check_circle, color: Colors.green, size: 75.0, key: UniqueKey()) :
+                      Icon(Icons.remove_circle_outline, color: Colors.red, size: 75.0, key: UniqueKey())
+                    ),
                   ),
-                  color: Colors.green,
-                  onPressed: () {
-                    _sendMessage("ON");
-                  },
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 250),
-                child: RaisedButton(
-                  child: Text(
-                    "OFF",
-                    style: TextStyle(
-                        fontSize: 17,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  color: Colors.red,
-                  onPressed: () {
-                    _sendMessage("OFF");
-                  },
-                ),
-              ),
-            ],
-          )
+              ],
+            ),
+          ),
         ),
-
       ],
     );
+  }
+
+  toggleButton(){
+    setState(() {
+      toggleValue = !toggleValue;
+    });
   }
 
   void _connect() async {
