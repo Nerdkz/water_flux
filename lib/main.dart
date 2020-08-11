@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:mqtt_client/mqtt_client.dart' as mqtt;
 import 'CircleProgress.dart';
+import 'models/message.dart';
 
 void main() async {
   runApp(MaterialApp(
@@ -33,17 +34,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
   // Brokker configurations
 
 //  String titleBar = 'MQTT';
-  String broker = 'm16.cloudmqtt.com';
-  int port = 10397;
-  String username = 'zeydwrgb';
-  String passwd = 'S-8dPLb9DgID';
-  String clientIdentifier = 'vinicius';
-
-//  String broker = 'tailor.cloudmqtt.com';
-//  int port = 12027;
-//  String username = 'tajuanfa';
-//  String passwd = '9CpBKnFY-_5o';
+//  String broker = 'm16.cloudmqtt.com';
+//  int port = 10397;
+//  String username = 'zeydwrgb';
+//  String passwd = 'S-8dPLb9DgID';
 //  String clientIdentifier = 'vinicius';
+
+  String broker = 'tailor.cloudmqtt.com';
+  int port = 12027;
+  String username = 'tajuanfa';
+  String passwd = '9CpBKnFY-_5o';
+  String clientIdentifier = 'vinicius';
 
   mqtt.MqttClient client;
   mqtt.MqttConnectionState connectionState;
@@ -58,6 +59,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
 
   bool toggleValue = false;
 
+  List<Message> messages = <Message>[];
+  ScrollController messageController = ScrollController();
+
   @override
   void initState() {
     _connect();
@@ -70,6 +74,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
       });
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -102,10 +107,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
             icon: Icon(Icons.data_usage),
             title: Text('Consumos'),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.power_settings_new),
-            title: Text('Bomba'),
-          ),
+//          BottomNavigationBarItem(
+//            icon: Icon(Icons.power_settings_new),
+//            title: Text('Bomba'),
+//          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.format_list_bulleted),
             title: Text('Leituras'),
@@ -117,8 +122,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
         onPageChanged: onPageChanged,
         children: <Widget>[
           _buildConsumptionPage(),
-          _buildPumpPage(),
-          //_buildMessagesPage(),
+          _buildMessagesPage(),
+          //_buildPumpPage()
         ],
       ),
     );
@@ -159,6 +164,31 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
     );
   }
 
+  Column _buildMessagesPage() {
+    return Column(
+      children: <Widget>[
+        Expanded(
+          child: ListView(
+            controller: messageController,
+            children: _buildMessageList(),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: RaisedButton(
+            child: Text('Clear'),
+            onPressed: () {
+              setState(() {
+                messages.clear();
+              });
+            },
+          ),
+        )
+      ],
+    );
+  }
+
+  /*
   Column _buildPumpPage() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -203,9 +233,45 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
     );
   }
 
+   */
+
+
+  List<Widget> _buildMessageList() {
+    return messages.map((Message message) => Card(
+      color: Colors.white70,
+      child: ListTile(
+        trailing: CircleAvatar(
+            radius: 14.0,
+            backgroundColor: Theme.of(context).accentColor,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(
+                  Icons.invert_colors,
+                  color: Colors.white,
+                  size: 20.0,
+                ),
+//                Text(
+//                  'QoS',
+//                  style: TextStyle(fontSize: 8.0),
+//                ),
+
+              ],
+            )),
+        title: Text(message.title),
+        subtitle: Text(message.message),
+        dense: true,
+      ),
+    ))
+        .toList()
+        .reversed
+        .toList();
+  }
+
   toggleButton(){
     setState(() {
       toggleValue = !toggleValue;
+      toggleValue ? _sendMessage("ON") : _sendMessage("OFF");
     });
   }
 
@@ -329,6 +395,20 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
         'payload is <-- ${message} -->');
     print(client.connectionStatus.state);
     setState(() {
+
+      messages.add(Message(
+        title: event[0].topic,
+        message: message,
+      ));
+      try {
+        messageController.animateTo(
+          0.0,
+          duration: Duration(milliseconds: 400),
+          curve: Curves.easeOut,
+        );
+      } catch (_) {
+        // ScrollController not attached to any scroll views.
+      }
       print('Mensagem => $message');
       _fluxReading = message;
     });
