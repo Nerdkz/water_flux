@@ -9,6 +9,7 @@ import 'package:mqtt_client/mqtt_client.dart' as mqtt;
 import 'CircleProgress.dart';
 import 'models/message.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 void main() async {
   runApp(MaterialApp(
@@ -25,6 +26,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
+
+  final DatabaseReference database = FirebaseDatabase.instance.reference().child("test");
 
   PageController _pageController;
   int _page = 0;
@@ -180,6 +183,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
           child: RaisedButton(
             child: Text('Clear'),
             onPressed: () {
+              database.push().set({
+                'name' : 'Vinicius',
+                'lastName' : 'Mendonça'
+              });
               setState(() {
                 messages.clear();
               });

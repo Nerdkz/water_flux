@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "465762710288",
+    "firebase_url": "https://water-flux.firebaseio.com",
+    "project_id": "water-flux",
+    "storage_bucket": "water-flux.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:465762710288:android:f2bc0d44dcd7f065366b95",
+        "android_client_info": {
+          "package_name": "com.example.waterflux"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "465762710288-0qn8bsc3oc6nc8kpu5ho0ern0hqcl8o7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.waterflux",
+            "certificate_hash": "8623c702ab204e39e0f1894ebce8553bcc859c79"
+          }
+        },
+        {
+          "client_id": "465762710288-ef1dvhftviseg1uhkcfmgab3724b6rq4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5y9VrADAkaRv5LoSbNvcwfpD4J7Cl_E4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "465762710288-ef1dvhftviseg1uhkcfmgab3724b6rq4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
