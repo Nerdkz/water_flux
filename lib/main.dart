@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:io';
@@ -7,6 +8,7 @@ import 'dart:math';
 import 'package:mqtt_client/mqtt_client.dart' as mqtt;
 import 'CircleProgress.dart';
 import 'models/message.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   runApp(MaterialApp(
@@ -239,7 +241,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
   List<Widget> _buildMessageList() {
     return messages.map((Message message) => Card(
       color: Colors.white70,
+      elevation: 2.0,
       child: ListTile(
+        
         trailing: CircleAvatar(
             radius: 14.0,
             backgroundColor: Theme.of(context).accentColor,
@@ -249,17 +253,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
                 Icon(
                   Icons.invert_colors,
                   color: Colors.white,
-                  size: 20.0,
+                  size: 25.0,
                 ),
-//                Text(
-//                  'QoS',
-//                  style: TextStyle(fontSize: 8.0),
-//                ),
-
               ],
-            )),
-        title: Text(message.title),
-        subtitle: Text(message.message),
+            )
+        ),
+        title: Text(
+          message.title,
+        ),
+        subtitle: Text(
+          message.message,
+        ),
         dense: true,
       ),
     ))
@@ -344,7 +348,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
       setState(() {
         connectionState = client.connectionStatus.state;
         print('Conectado!!!');
-        _subscribeToTopic("consumo");
+        _subscribeToTopic("agosto");
       });
     } else {
       print('ERROR: MQTT client connection failed - '
