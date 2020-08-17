@@ -25,9 +25,9 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
-
-  final DatabaseReference database = FirebaseDatabase.instance.reference().child("test");
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+  DatabaseReference databaseReference =
+      FirebaseDatabase.instance.reference().child("galeria");
 
   PageController _pageController;
   int _page = 0;
@@ -72,14 +72,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
     _connect();
     _pageController = PageController();
     super.initState();
-    progressController = AnimationController(vsync: this, duration: Duration(milliseconds: 5000));
-    animation = Tween<double>(begin: 0, end: _progress).animate(progressController)..addListener((){
-      setState(() {
-
-      });
-    });
+    progressController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 5000));
+    animation =
+        Tween<double>(begin: 0, end: _progress).animate(progressController)
+          ..addListener(() {
+            setState(() {});
+          });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -145,21 +145,20 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
             width: 200,
             height: 200,
             child: GestureDetector(
-              onTap: (){
-                if(animation.value == _progress){
+              onTap: () {
+                if (animation.value == _progress) {
                   progressController.reverse();
-                }else{
+                } else {
                   progressController.forward();
                 }
               },
               child: Center(
                 child: Text(
-                    "${animation.value.toInt()} L",
+                  "${animation.value.toInt()} L",
                   style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue
-                  ),
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
                 ),
               ),
             ),
@@ -178,21 +177,34 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
             children: _buildMessageList(),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: RaisedButton(
-            child: Text('Clear'),
-            onPressed: () {
-              database.push().set({
-                'name' : 'Vinicius',
-                'lastName' : 'Mendonça'
-              });
-              setState(() {
-                messages.clear();
-              });
-            },
-          ),
-        )
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: RaisedButton(
+                child: Text('List'),
+                onPressed: () {
+                  setState(() {
+                    getData();
+                  });
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: RaisedButton(
+                child: Text('Clear'),
+                onPressed: () {
+                  setState(() {
+                    messages.clear();
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -244,45 +256,73 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
 
    */
 
-
   List<Widget> _buildMessageList() {
-    return messages.map((Message message) => Card(
-      color: Colors.white70,
-      elevation: 2.0,
-      child: ListTile(
-        
-        trailing: CircleAvatar(
-            radius: 14.0,
-            backgroundColor: Theme.of(context).accentColor,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Icon(
-                  Icons.invert_colors,
-                  color: Colors.white,
-                  size: 25.0,
+    return messages
+        .map((Message message) => Card(
+              color: Colors.white70,
+              elevation: 2.0,
+              child: ListTile(
+                trailing: CircleAvatar(
+                    radius: 14.0,
+                    backgroundColor: Theme.of(context).accentColor,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Icon(
+                          Icons.invert_colors,
+                          color: Colors.white,
+                          size: 25.0,
+                        ),
+                      ],
+                    )),
+                title: Text(
+                  message.title,
                 ),
-              ],
-            )
-        ),
-        title: Text(
-          message.title,
-        ),
-        subtitle: Text(
-          message.message,
-        ),
-        dense: true,
-      ),
-    ))
+                subtitle: Text(
+                  message.message,
+                ),
+                dense: true,
+              ),
+            ))
         .toList()
         .reversed
         .toList();
   }
 
-  toggleButton(){
+  toggleButton() {
     setState(() {
       toggleValue = !toggleValue;
       toggleValue ? _sendMessage("ON") : _sendMessage("OFF");
+    });
+  }
+
+  void getData() {
+    databaseReference.once().then((DataSnapshot snapshot) {
+
+      setState(() {
+
+        Map<dynamic, dynamic> values = snapshot.value;
+        values["2020"]["7"].forEach((i, values) {
+          print('VALUES : ${values}');
+          print('I : ${i}');
+
+          if(values != null){
+            messages.add(Message(
+              title: "Consumo",
+              message: values["consumo"].toString() + "L",
+            ));
+            try {
+              messageController.animateTo(
+                0.0,
+                duration: Duration(milliseconds: 400),
+                curve: Curves.easeOut,
+              );
+            } catch (_) {
+              // ScrollController not attached to any scroll views.
+            }
+          }
+        });
+      });
     });
   }
 
@@ -406,7 +446,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
         'payload is <-- ${message} -->');
     print(client.connectionStatus.state);
     setState(() {
-
       messages.add(Message(
         title: event[0].topic,
         message: message,
