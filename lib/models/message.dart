@@ -1,6 +1,6 @@
 class Message {
-  final String title;
-  final String message;
-
-  Message({this.title, this.message});
+  final String day;
+  final String consumption;
+  final String time;
+  Message({this.day, this.consumption, this.time});
 }

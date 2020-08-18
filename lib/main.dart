@@ -276,16 +276,30 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       ],
                     )),
                 title: Text(
-                  message.title,
+                  message.day,
                 ),
-                subtitle: Text(
-                  message.message,
+                subtitle: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Column(children: <Widget>[
+                      Text(
+                        message.consumption,
+                      ),
+                    ]),
+                    Padding(
+                      padding: EdgeInsets.only(right: 32.0),
+                      child: Column(children: <Widget>[
+                        Text(
+                          message.time,
+                        ),
+                      ]),
+                    ),
+                  ],
                 ),
                 dense: true,
               ),
             ))
-        .toList()
-        .reversed
         .toList();
   }
 
@@ -298,18 +312,39 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   void getData() {
     databaseReference.once().then((DataSnapshot snapshot) {
+      int cont = 0;
 
       setState(() {
+        messages.clear();
 
         Map<dynamic, dynamic> values = snapshot.value;
-        values["2020"]["7"].forEach((i, values) {
-          print('VALUES : ${values}');
-          print('I : ${i}');
+        values["2020"]["8"].forEach((value) {
 
-          if(values != null){
+          if (value == null && cont == 0) {
+          }
+          else if (value == null && cont > 0) {
+
             messages.add(Message(
-              title: "Consumo",
-              message: values["consumo"].toString() + "L",
+              day: cont.toString(),
+              consumption: "0 L",
+              time: "0 Min",
+            ));
+            try {
+              messageController.animateTo(
+                0.0,
+                duration: Duration(milliseconds: 400),
+                curve: Curves.easeOut,
+              );
+            } catch (_) {
+              // ScrollController not attached to any scroll views.
+            }
+          } else {
+
+            double cons = value["consumo"] / 401.0;
+            messages.add(Message(
+              day: "Dia : " + cont.toString(),
+              consumption: cons.round().toInt().toString() + " L",
+              time: value["tempo"].toString() + " Min",
             ));
             try {
               messageController.animateTo(
@@ -321,6 +356,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               // ScrollController not attached to any scroll views.
             }
           }
+          cont++;
         });
       });
     });
@@ -447,8 +483,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     print(client.connectionStatus.state);
     setState(() {
       messages.add(Message(
-        title: event[0].topic,
-        message: message,
+        day: event[0].topic,
+        consumption: message,
       ));
       try {
         messageController.animateTo(
