@@ -27,7 +27,7 @@ class CircleProgress extends CustomPainter{
 
     canvas.drawCircle(center, radius, outerCircle); // this draw main outer circle
 
-    double angle = 2 * pi * (currentProgress/100);
+    double angle = 2 * pi * (currentProgress/15000);
     canvas.drawArc(Rect.fromCircle(center: center, radius: radius), -pi/2, angle, false, completeArc);
   }
 
