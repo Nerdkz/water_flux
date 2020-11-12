@@ -29,6 +29,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   DatabaseReference databaseReference =
       FirebaseDatabase.instance.reference().child("galeria");
 
+  final dbRefYear = FirebaseDatabase.instance.reference().child("2020");
+
   PageController _pageController;
   int _page = 0;
 
@@ -163,6 +165,21 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   Column _buildMessagesPage() {
+
+    if(_page == 1 && messages.isEmpty){
+      setState(() {
+        getData();
+      });
+    }
+    else if (_page != 1){
+
+      setState(() {
+
+        messages.clear();
+      });
+    }
+
+
     return Column(
       children: <Widget>[
         Expanded(
@@ -171,34 +188,34 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             children: _buildMessageList(),
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: RaisedButton(
-                child: Text('List'),
-                onPressed: () {
-                  setState(() {
-                    getData();
-                  });
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: RaisedButton(
-                child: Text('Clear'),
-                onPressed: () {
-                  setState(() {
-                    messages.clear();
-                  });
-                },
-              ),
-            ),
-          ],
-        ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        //   crossAxisAlignment: CrossAxisAlignment.center,
+        //   children: <Widget>[
+        //     Padding(
+        //       padding: const EdgeInsets.all(8.0),
+        //       child: RaisedButton(
+        //         child: Text('List'),
+        //         onPressed: () {
+        //           setState(() {
+        //             getData();
+        //           });
+        //         },
+        //       ),
+        //     ),
+        //     Padding(
+        //       padding: const EdgeInsets.all(8.0),
+        //       child: RaisedButton(
+        //         child: Text('Clear'),
+        //         onPressed: () {
+        //           setState(() {
+        //             messages.clear();
+        //           });
+        //         },
+        //       ),
+        //     ),
+        //   ],
+        // ),
       ],
     );
   }
@@ -336,12 +353,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             double cons = value["consumo"] / 401.0;
             int time = cons < 1.0 ? 0 : value["tempo"];
             int min = (time / 60).toInt();
-            //String time = cons < 1 ? "0 Min" : (value["tempo"] / 60).toString() + " Min";
+
             messages.add(Message(
               day: "Dia : " + cont.toString(),
               consumption: cons.round().toInt().toString() + " L",
               time: min.toString() + " Min",
             ));
+
             try {
               messageController.animateTo(
                 0.0,
